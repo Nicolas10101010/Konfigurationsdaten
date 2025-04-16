@@ -4,14 +4,15 @@
 
 ## **Inhaltsverzeichnis**
 1. [Übersicht](#übersicht)  
-2. [Möglichkeiten zur Auslagerung von Konfigurationsdaten](#möglichkeiten-zur-auslagerung-von-konfigurationsdaten)  
-3. [Praktische Beispiele](#praktische-beispiele)  
+2. [Möglichkeiten zur Auslagerung von Konfigurationsdaten](#möglichkeiten-zur-auslagerung-von-konfigurationsdaten)
+3. [Voraussetzungen](#voraussetzungen)  
+4. [Praktische Beispiele](#praktische-beispiele)  
    - [Bash (Linux)](#bash-linux)  
    - [PowerShell (Windows)](#powershell-windows)  
-4. [Vergleich der Methoden](#vergleich-der-methoden)  
-5. [Screenshots der Ausführung](#screenshots-der-ausführung)  
-6. [Reflexion](#reflexion)  
-7. [Quellcode & Dateien](#quellcode--dateien)  
+5. [Vergleich der Methoden](#vergleich-der-methoden)  
+6. [Screenshots der Ausführung](#screenshots-der-ausführung)  
+7. [Reflexion](#reflexion)  
+8. [Quellcode & Dateien](#quellcode--dateien)  
 
 ---
 
@@ -31,6 +32,17 @@ Folgende Methoden wurden untersucht:
 - **Kommandozeilenparameter** (z. B. `./skript.sh --port 3306`)  
 - **Registry** (nur für Windows/PowerShell relevant)
 
+---
+
+## Voraussetzungen  
+### Bash (Git Bash/WSL)  
+- **jq installieren** (nur für JSON):  
+  ```bash  
+  # Linux/WSL:  
+  sudo apt install jq  
+
+  # Windows (mit Chocolatey):  
+  choco install jq -y  
 ---
 
 ## **Praktische Beispiele**
@@ -135,7 +147,7 @@ Funktion:
 Liest Konfigurationsdaten aus config.psd1. Öffnet Browser, prüft Netzverbindung zum Ziel-Port.
 
 ### 3. skript_registry.ps1
-
+- Kann nur im Admin-Modus ausgeführt werden 
 ```powershell
 $regPath = "HKCU:\Software\MyApp"
 if (-not (Test-Path $regPath)) {
@@ -147,7 +159,6 @@ $dbHost = (Get-ItemProperty -Path $regPath -Name "DBHost").DBHost
 $dbPort = (Get-ItemProperty -Path $regPath -Name "DBPort").DBPort
 Write-Host "Datenbank: ${dbHost}:${dbPort}"
 ```
-
 Funktion:  
 Liest Werte aus der Windows-Registry (HKCU\Software\MyApp) und gibt die Datenbank-Adresse aus.
 
@@ -173,27 +184,28 @@ Liest Werte aus der Windows-Registry (HKCU\Software\MyApp) und gibt die Datenban
 ## **Screenshots der Ausführung** 
 
 ### Bash mit .env-Datei (skript.sh)
-![Ausführung von skript.sh](images/skript.sh.png)
+![Ausführung von skript.sh](Images/skript.sh.png)
 
 ### Bash mit JSON (skript_json.sh)
-![Ausführung von skript_json.sh](images/skript.json.sh.png)  
+![Ausführung von skript_json.sh](Images/skript_json.sh.png)  
 *Hinweis: Erfordert das Tool "jq" (konnte nicht installiert werden).*
 
 ### Bash mit Parametern (skript_params.sh)
-![Ausführung von skript_params.sh](images/skript_params.sh.png)
+![Ausführung von skript_params.sh](Images/skript_params.sh.png)
 
 ### PowerShell mit .psd1-Datei (skript_psd1.ps1)
-![Ausführung von skript_psd1.ps1](images/skript.psd1.png)
+![Ausführung von skript_psd1.ps1](Images/skript.psd1.png)
+Der Port-Test im Skript prüft standardmässig Port 3306. Falls keine Datenbank läuft, erscheint eine Warnung
 
 ### PowerShell mit JSON (skript.ps1)
-![Ausführung von skript.ps1](images/skript.ps1.png)
+![Ausführung von skript.ps1](Images/skript.ps1.png)
 
 ### PowerShell mit Registry (skript_registry.ps1)
-![Ausführung von skript_registry.ps1](images/skript_registry.ps1.png)  
+![Ausführung von skript_registry.ps1](Images/skript_registry.ps1.png)  
 *Hinweis: Erfordert Administratorrechte.
 
 ### Ausgabe-Website
-![Website-Demo](images/Website-Image.png)
+![Website-Demo](Images/Website-Image.png)
 
 ---
 
@@ -231,4 +243,4 @@ Liest Werte aus der Windows-Registry (HKCU\Software\MyApp) und gibt die Datenban
 - **PowerShell:** `skript.ps1`, `skript_json.ps1`, `config.psd1`, `config.json`  
 
 **Autor:** Nicolas Manser  
-**Version:** 1.2
+**Version:** 2.0
