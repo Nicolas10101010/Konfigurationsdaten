@@ -1,4 +1,3 @@
-
 # **LB2: Konfigurationsdaten auslagern – Dokumentation**  
 **Von Nicolas Manser**
 
