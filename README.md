@@ -35,73 +35,121 @@ Folgende Methoden wurden untersucht:
 
 ## **Praktische Beispiele**
 
-### **Bash (Linux)**  
+## Bash (Linux)
 
-**Beispiel 1: .env-Datei**  
-**Datei `config.env`:**
-```bash
-DB_HOST=localhost
-DB_PORT=3306
-```
+### 1. skript.sh
 
-**Skript `skript.sh`:**
 ```bash
 #!/bin/bash
-#Konfiguration einlesen
+if [ ! -f "config.env" ]; then
+    echo "Fehler: config.env nicht gefunden!"
+    exit 1
+fi
 source config.env
 echo "Datenbank: $DB_HOST:$DB_PORT"
 ```
 
-**Beispiel 2: JSON-Datei mit jq**  
-**Datei `config.json`:**
-```json
-{
-  "database": {
-    "host": "localhost",
-    "port": 3306
-  }
-}
-```
+Funktion:  
+Überprüft, ob config.env existiert. Lädt Umgebungsvariablen und gibt die Datenbank-Info aus.
 
-**Skript `skript_json.sh`:**
+### 2. skript_json.sh
+
 ```bash
 #!/bin/bash
-#JSON-Daten extrahieren
+if ! command -v jq &> /dev/null; then
+    echo "Fehler: jq ist nicht installiert. Nutze PowerShell für JSON."
+    exit 1
+fi
+
 HOST=$(jq -r '.database.host' config.json)
 PORT=$(jq -r '.database.port' config.json)
 echo "Datenbank: $HOST:$PORT"
 ```
 
----
+Funktion:  
+Liest config.json mit jq. Falls jq fehlt (häufig unter Windows), erfolgt ein Hinweis zur Nutzung von PowerShell.
 
-### **PowerShell (Windows)**  
+### 3. skript_params.sh
 
-**Beispiel 1: .psd1-Datei**  
-**Datei `config.psd1`:**
+```bash
+#!/bin/bash
+HOST="localhost"
+PORT="3306"
+
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        --host) HOST="$2"; shift ;;
+        --port) PORT="$2"; shift ;;
+        *) echo "Unbekannter Parameter: $1"; exit 1 ;;
+    esac
+    shift
+done
+
+echo "Datenbank: $HOST:$PORT"
+```
+
+Funktion:  
+Nimmt --host und --port als Parameter entgegen. Gibt die konfigurierten Werte aus.
+
+## PowerShell (Windows)
+
+### 1. skript.ps1
+
 ```powershell
-@{
-    db = @{
-        host = 'localhost'
-        port = 3306
-    }
+if (-not (Test-Path "config.json")) {
+    Write-Host "Fehler: config.json nicht gefunden!"
+    exit 1
 }
-```
 
-**Skript `skript.ps1`:**
-```powershell
-#Konfiguration laden
-$config = Import-PowerShellDataFile config.psd1
-Write-Host "Datenbank: $($config.db.host):$($config.db.port)"
-```
-
-**Beispiel 2: JSON-Datei**  
-**Datei `config.json` (wie oben)**
-
-**Skript `skript_json.ps1`:**
-```powershell
 $config = Get-Content config.json | ConvertFrom-Json
-Write-Host "Datenbank: $($config.database.host):$($config.database.port)"
+$url = "http://$($config.database.host):$($config.database.port)"
+
+Write-Host "Starte Browser mit: $url"
+Start-Process "chrome.exe" $url
+
+Write-Host "Starte Test-Webserver auf Port $($config.database.port)..."
+python -m http.server $config.database.port
 ```
+
+Funktion:  
+Lädt config.json, öffnet Chrome mit URL, startet Python-Webserver auf dem angegebenen Port.
+
+### 2. skript_psd1.ps1
+
+```powershell
+if (-not (Test-Path "config.psd1")) {
+    Write-Host "Fehler: config.psd1 nicht gefunden!"
+    exit 1
+}
+
+$config = Import-PowerShellDataFile config.psd1
+$url = "http://$($config.db.host):$($config.db.port)"
+
+Write-Host "Starte Browser mit: $url"
+Start-Process "chrome.exe" $url
+
+Test-NetConnection -ComputerName $config.db.host -Port $config.db.port
+```
+
+Funktion:  
+Liest Konfigurationsdaten aus config.psd1. Öffnet Browser, prüft Netzverbindung zum Ziel-Port.
+
+### 3. skript_registry.ps1
+
+```powershell
+$regPath = "HKCU:\Software\MyApp"
+if (-not (Test-Path $regPath)) {
+    Write-Host "Fehler: Registry-Schlüssel nicht gefunden!"
+    exit 1
+}
+
+$dbHost = (Get-ItemProperty -Path $regPath -Name "DBHost").DBHost
+$dbPort = (Get-ItemProperty -Path $regPath -Name "DBPort").DBPort
+Write-Host "Datenbank: ${dbHost}:${dbPort}"
+```
+
+Funktion:  
+Liest Werte aus der Windows-Registry (HKCU\Software\MyApp) und gibt die Datenbank-Adresse aus.
 
 ---
 
@@ -123,25 +171,29 @@ Write-Host "Datenbank: $($config.database.host):$($config.database.port)"
 ---
 
 ## **Screenshots der Ausführung** 
-(hinzufügen)
 
-### **Bash (Linux):**
-```bash
-$ ./skript.sh
-Datenbank: localhost:3306
+### Bash mit .env-Datei (skript.sh)
+![Ausführung von skript.sh](images/skript.sh.png)
 
-$ ./skript_json.sh
-Datenbank: localhost:3306
-```
+### Bash mit JSON (skript_json.sh)
+![Ausführung von skript_json.sh](images/skript.json.sh.png)  
+*Hinweis: Erfordert das Tool "jq" (konnte nicht installiert werden).*
 
-### **PowerShell (Windows):**
-```powershell
-PS> .\skript.ps1
-Datenbank: localhost:3306
+### Bash mit Parametern (skript_params.sh)
+![Ausführung von skript_params.sh](images/skript_params.sh.png)
 
-PS> .\skript_json.ps1
-Datenbank: localhost:3306
-```
+### PowerShell mit .psd1-Datei (skript_psd1.ps1)
+![Ausführung von skript_psd1.ps1](images/skript.psd1.png)
+
+### PowerShell mit JSON (skript.ps1)
+![Ausführung von skript.ps1](images/skript.ps1.png)
+
+### PowerShell mit Registry (skript_registry.ps1)
+![Ausführung von skript_registry.ps1](images/skript_registry.ps1.png)  
+*Hinweis: Erfordert Administratorrechte.
+
+### Ausgabe-Website
+![Website-Demo](images/Website-Image.png)
 
 ---
 
@@ -178,7 +230,5 @@ Datenbank: localhost:3306
 - **Bash:** `skript.sh`, `skript_json.sh`, `config.env`, `config.json`  
 - **PowerShell:** `skript.ps1`, `skript_json.ps1`, `config.psd1`, `config.json`  
 
-**GitHub-Repository:** Link zum Projekt  
-
 **Autor:** Nicolas Manser  
-**Version:** 1.0
+**Version:** 1.2
