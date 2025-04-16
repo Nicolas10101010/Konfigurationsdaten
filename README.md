@@ -9,9 +9,10 @@
    - [Bash (Linux)](#bash-linux)  
    - [PowerShell (Windows)](#powershell-windows)  
 5. [Vergleich der Methoden](#vergleich-der-methoden)  
-6. [Screenshots der Ausführung](#screenshots-der-ausführung)  
-7. [Reflexion](#reflexion)  
-8. [Quellcode & Dateien](#quellcode--dateien)  
+6. [Screenshots der Ausführung](#screenshots-der-ausführung)
+7. [Bekannte Probleme](#bekannte-probleme) 
+8. [Reflexion](#reflexion)  
+9. [Quellcode & Dateien](#quellcode--dateien)  
 
 ---
 
@@ -208,6 +209,14 @@ Der Port-Test im Skript prüft standardmässig Port 3306. Falls keine Datenbank 
 
 ---
 
+## **Bekannte Probleme**  
+1. **JSON in Bash**:  
+   - `jq` ist unter Windows ohne Chocolatey nicht installierbar.
+     
+2. **Registry in PowerShell**:  
+   - Erfordert Administratorrechte, die in eingeschränkten Umgebungen nicht verfügbar sind.  
+---
+
 ## **Reflexion**
 
 **Erkenntnisse:**
@@ -242,4 +251,4 @@ Der Port-Test im Skript prüft standardmässig Port 3306. Falls keine Datenbank 
 - **PowerShell:** `skript.ps1`, `skript_json.ps1`, `config.psd1`, `config.json`  
 
 **Autor:** Nicolas Manser  
-**Version:** 2.0
+**Version:** 2.1
