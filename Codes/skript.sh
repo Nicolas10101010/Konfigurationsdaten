@@ -1,7 +1,8 @@
 #!/bin/bash
-source config.env
-URL="http://$DB_HOST:$DB_PORT"
+if [ ! -f "config.env" ]; then
+    echo "Fehler: config.env nicht gefunden!"
+    exit 1
+fi
 
-echo "Öffne Browser mit: $URL"
-xdg-open "$URL"       #Für Linux
-cmd.exe /C start "" "$URL"
+source config.env
+echo "Datenbank: $DB_HOST:$DB_PORT"
