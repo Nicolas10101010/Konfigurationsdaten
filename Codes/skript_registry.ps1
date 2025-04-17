@@ -6,4 +6,4 @@ if (-not (Test-Path $regPath)) {
 
 $dbHost = (Get-ItemProperty -Path $regPath -Name "DBHost").DBHost
 $dbPort = (Get-ItemProperty -Path $regPath -Name "DBPort").DBPort
-Write-Host "Datenbank: ${dbHost}:${dbPort}"  
+Write-Host "Datenbank: ${dbHost}:${dbPort}"
